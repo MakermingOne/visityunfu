@@ -2,6 +2,8 @@
   "version": 2,
   "name": "visit-yunfu",
   "routes": [
+    { "src": "/visityunfu/assets/(.*)", "dest": "/assets/$1" },
+    { "src": "/visityunfu/images/(.*)", "dest": "/images/$1" },
     { "handle": "filesystem" },
     { "src": "/.*", "dest": "/index.html" }
   ]
