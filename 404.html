@@ -1,26 +1,31 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Visit Yunfu - 云浮文旅</title>
-    <script>
-      // 动态设置 base URL，兼容 GitHub Pages 和 Vercel
-      (function() {
-        var path = window.location.pathname;
-        var base = document.createElement('base');
-        if (path.startsWith('/visityunfu')) {
-          base.href = '/visityunfu/';
-        } else {
-          base.href = '/';
-        }
-        document.head.appendChild(base);
-      })();
-    </script>
-    <script type="module" crossorigin src="./assets/index-DRhF-XhE.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-DWFOa5Ul.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Visit Yunfu - 云浮文旅</title>
+  <script>
+    // SPA 路由处理：将当前路径保存并重定向到首页
+    (function() {
+      var pathname = window.location.pathname;
+      var search = window.location.search;
+      var hash = window.location.hash;
+      
+      // 保存完整路径到 sessionStorage
+      var fullPath = pathname + search + hash;
+      sessionStorage.setItem('spa-redirect', fullPath);
+      
+      // 确定 base 路径
+      var basePath = '/';
+      if (pathname.startsWith('/visityunfu')) {
+        basePath = '/visityunfu/';
+      }
+      
+      // 重定向到首页
+      window.location.replace(basePath);
+    })();
+  </script>
+</head>
+<body>
+  <p>页面重定向中...</p>
+</body>
 </html>

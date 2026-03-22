@@ -17,6 +17,17 @@
         document.head.appendChild(base);
       })();
     </script>
+    <script>
+      // 处理从 404.html 重定向回来的情况
+      (function() {
+        var redirectPath = sessionStorage.getItem('spa-redirect');
+        if (redirectPath) {
+          sessionStorage.removeItem('spa-redirect');
+          // 使用 history.replaceState 恢复原始 URL，不触发页面刷新
+          window.history.replaceState(null, null, redirectPath);
+        }
+      })();
+    </script>
     <script type="module" crossorigin src="./assets/index-DRhF-XhE.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-DWFOa5Ul.css">
   </head>
