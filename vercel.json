@@ -1,18 +1,9 @@
 {
   "version": 2,
   "name": "visit-yunfu",
-  "routes": [
-    {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "/images/(.*)",
-      "dest": "/images/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
+  "rewrites": [
+    {"source": "/assets/:path*", "destination": "/assets/:path*"},
+    {"source": "/images/:path*", "destination": "/images/:path*"},
+    {"source": "/(.*)", "destination": "/index.html"}
   ]
 }
