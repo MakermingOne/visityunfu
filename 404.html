@@ -2,22 +2,30 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Visit Yunfu - 云浮文旅</title>
   <script>
     // SPA 路由处理：将当前路径保存并重定向到首页
     (function() {
       var pathname = window.location.pathname;
-      var search = window.location.search;
-      var hash = window.location.hash;
+      var search = window.location.search || "";
+      var hash = window.location.hash || "";
       
       // 保存完整路径到 sessionStorage
       var fullPath = pathname + search + hash;
-      sessionStorage.setItem('spa-redirect', fullPath);
+      try {
+        sessionStorage.setItem("spa-redirect", fullPath);
+      } catch(e) {
+        // sessionStorage 不可用，使用 URL hash 作为备选
+        window.location.replace("/#!redirect=" + encodeURIComponent(fullPath));
+        return;
+      }
       
-      // 确定 base 路径
-      var basePath = '/';
-      if (pathname.startsWith('/visityunfu')) {
-        basePath = '/visityunfu/';
+      // 确定 base 路径（适配 GitHub Pages 项目页）
+      var basePath = "/";
+      var pathParts = pathname.split("/").filter(Boolean);
+      if (pathParts.length > 0 && pathParts[0] === "visityunfu") {
+        basePath = "/visityunfu/";
       }
       
       // 重定向到首页
@@ -26,6 +34,6 @@
   </script>
 </head>
 <body>
-  <p>页面重定向中...</p>
+  <p style="text-align: center; padding: 50px; font-family: sans-serif;">页面重定向中...</p>
 </body>
 </html>
