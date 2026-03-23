@@ -2,38 +2,28 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Visit Yunfu - 云浮文旅</title>
+  <title>重定向中...</title>
   <script>
-    // SPA 路由处理：将当前路径保存并重定向到首页
     (function() {
-      var pathname = window.location.pathname;
-      var search = window.location.search || "";
-      var hash = window.location.hash || "";
+      // 获取当前路径，处理 GitHub Pages 的仓库名前缀
+      var path = window.location.pathname;
+      var repoName = '/visityunfu';
       
-      // 保存完整路径到 sessionStorage
-      var fullPath = pathname + search + hash;
-      try {
-        sessionStorage.setItem("spa-redirect", fullPath);
-      } catch(e) {
-        // sessionStorage 不可用，使用 URL hash 作为备选
-        window.location.replace("/#!redirect=" + encodeURIComponent(fullPath));
-        return;
+      // 保存当前完整 URL
+      sessionStorage.setItem('spa_redirect', window.location.href);
+      
+      // 检测是否在 GitHub Pages（路径包含仓库名）
+      if (path.indexOf(repoName) === 0) {
+        // GitHub Pages：跳转到根路径 + hash 标记
+        window.location.replace(window.location.origin + repoName + '/?redirect=' + encodeURIComponent(path));
+      } else {
+        // Vercel 或其他：跳转到根路径
+        window.location.replace(window.location.origin + '/?redirect=' + encodeURIComponent(path));
       }
-      
-      // 确定 base 路径（适配 GitHub Pages 项目页）
-      var basePath = "/";
-      var pathParts = pathname.split("/").filter(Boolean);
-      if (pathParts.length > 0 && pathParts[0] === "visityunfu") {
-        basePath = "/visityunfu/";
-      }
-      
-      // 重定向到首页
-      window.location.replace(basePath);
     })();
   </script>
 </head>
 <body>
-  <p style="text-align: center; padding: 50px; font-family: sans-serif;">页面重定向中...</p>
+  <p>页面跳转中...</p>
 </body>
 </html>
