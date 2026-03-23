@@ -2,6 +2,19 @@
 <html lang="en">
   <head>
     <script>
+      // 动态设置 base URL，兼容 GitHub Pages 和 Vercel
+      (function() {
+        var path = window.location.pathname;
+        var base = document.createElement('base');
+        if (path.indexOf('/visityunfu') === 0) {
+          base.href = '/visityunfu/';
+        } else {
+          base.href = '/';
+        }
+        document.head.appendChild(base);
+      })();
+    </script>
+    <script>
       // SPA 路由修复：处理从 404 页面重定向回来的情况
       (function() {
         // 方式 1：从 sessionStorage 获取（GitHub Pages）
