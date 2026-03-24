@@ -44,13 +44,153 @@
         window.tr = function(key) { return key; };
       }
     </script>
+    
+    <!-- 性能优化：预加载关键资源 -->
+    <!-- DNS 预解析 -->
+    <link rel="dns-prefetch" href="https://github.com">
+    <link rel="dns-prefetch" href="https://raw.githubusercontent.com">
+    
+    <!-- 预连接到可能的 CDN -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- 预加载首屏关键图片（Hero 图片） -->
+    <link rel="preload" as="image" href="./images/common/hero-1.jpg" fetchpriority="high">
+    <link rel="preload" as="image" href="./images/common/hero-2.jpg" fetchpriority="high">
+    <link rel="preload" as="image" href="./images/common/hero-3.jpg" fetchpriority="high">
+    
+    <!-- 预加载关键 CSS -->
+    <link rel="preload" as="style" href="./assets/index-DWFOa5Ul.css">
+    
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Visit Yunfu - 探索云浮的自然美景、文化古迹和特色美食。云浮文旅推广平台。">
+    <meta name="keywords" content="云浮, 云浮旅游, 云浮文化, 云浮美食, 广东旅游, 天露山, 蟠龙洞">
+    
+    <!-- Open Graph / 社交分享优化 -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Visit Yunfu - 云浮文旅">
+    <meta property="og:description" content="探索云浮的自然美景、文化古迹和特色美食">
+    <meta property="og:image" content="./images/common/hero-1.jpg">
+    
     <title>Visit Yunfu - 云浮文旅</title>
-    <script type="module" crossorigin src="./assets/index-DRhF-XhE.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-DWFOa5Ul.css">
+    
+    <!-- 关键 CSS 内联（首屏渲染优化） -->
+    <style>
+      /* 关键 CSS：防止页面闪烁 */
+      html {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      
+      /* 图片加载占位符 */
+      img {
+        max-width: 100%;
+        height: auto;
+        vertical-align: middle;
+      }
+      
+      /* 图片懒加载样式 */
+      .lazy-image {
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+        background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s linear infinite;
+      }
+      
+      .lazy-image.loaded {
+        opacity: 1;
+        animation: none;
+        background: transparent;
+      }
+      
+      @keyframes shimmer {
+        to {
+          background-position-x: -200%;
+        }
+      }
+      
+      /* 减少动画（尊重用户偏好） */
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        ::before,
+        ::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+        
+        .lazy-image {
+          animation: none;
+          opacity: 1;
+        }
+      }
+      
+      /* 加载状态样式 */
+      #root {
+        min-height: 100vh;
+      }
+      
+      /* 骨架屏样式 */
+      .skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s ease-in-out infinite;
+        border-radius: 4px;
+      }
+      
+      @keyframes loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+    </style>
+    
+    <!-- 主样式表 -->
+    <link rel="stylesheet" href="./assets/index-DWFOa5Ul.css">
+    
+    <!-- 图片懒加载脚本 -->
+    <script src="./scripts/lazy-load.min.js" defer></script>
   </head>
   <body>
     <div id="root"></div>
+    
+    <!-- 主 JavaScript -->
+    <script type="module" crossorigin src="./assets/index-DRhF-XhE.js"></script>
+    
+    <!-- 性能监控（可选） -->
+    <script>
+      // 简单的性能监控
+      (function() {
+        // 上报关键性能指标
+        window.addEventListener('load', function() {
+          setTimeout(function() {
+            var perfData = window.performance.timing;
+            var pageLoadTime = perfData.loadEventEnd - perfData.navigationStart;
+            var domReadyTime = perfData.domComplete - perfData.domLoading;
+            
+            console.log('[Performance] Page load time: ' + pageLoadTime + 'ms');
+            console.log('[Performance] DOM ready time: ' + domReadyTime + 'ms');
+            
+            // 如果加载时间超过 3 秒，提示优化建议
+            if (pageLoadTime > 3000) {
+              console.warn('[Performance] 页面加载较慢，建议继续优化图片和资源');
+            }
+          }, 0);
+        });
+        
+        // 图片加载错误处理
+        window.addEventListener('error', function(e) {
+          if (e.target.tagName === 'IMG') {
+            console.warn('[Image] Failed to load:', e.target.src);
+            // 添加错误标记，可用于显示占位图
+            e.target.classList.add('image-load-error');
+          }
+        }, true);
+      })();
+    </script>
   </body>
 </html>

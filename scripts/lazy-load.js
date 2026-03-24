@@ -1,0 +1,208 @@
+/**
+ * 图片懒加载与优化脚本
+ * 功能：
+ * 1. 优先加载首屏图片
+ * 2. 其他图片懒加载
+ * 3. 使用 IntersectionObserver 监控
+ * 4. 加载占位符和淡入效果
+ */
+(function() {
+  'use strict';
+
+  // 配置
+  const CONFIG = {
+    // 首屏图片选择器（优先加载）
+    prioritySelectors: [
+      'img[src*="hero"]',
+      'img[src*="logo"]',
+      'img[src*="banner"]'
+    ],
+    // 懒加载图片选择器
+    lazySelector: 'img[data-src]',
+    // 占位符图片（Base64 1x1 透明像素）
+    placeholder: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+    // 预加载距离（提前多少像素开始加载）
+    rootMargin: '50px 0px',
+    // 淡入动画时长
+    fadeInDuration: 300
+  };
+
+  // 添加懒加载样式
+  function addStyles() {
+    if (document.getElementById('lazy-load-styles')) return;
+    
+    const styles = document.createElement('style');
+    styles.id = 'lazy-load-styles';
+    styles.textContent = `
+      .lazy-image {
+        opacity: 0;
+        transition: opacity ${CONFIG.fadeInDuration}ms ease-in-out;
+        background-color: #f0f0f0;
+      }
+      .lazy-image.loaded {
+        opacity: 1;
+      }
+      .lazy-image-container {
+        background-color: #f5f5f5;
+        position: relative;
+        overflow: hidden;
+      }
+      .lazy-image-container::before {
+        content: '';
+        display: block;
+        padding-top: 56.25%; /* 默认 16:9 比例 */
+      }
+      .lazy-image-container img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    `;
+    document.head.appendChild(styles);
+  }
+
+  // 预加载关键图片
+  function preloadPriorityImages() {
+    CONFIG.prioritySelectors.forEach(selector => {
+      const images = document.querySelectorAll(selector);
+      images.forEach(img => {
+        if (img.dataset.src && !img.src) {
+          img.src = img.dataset.src;
+          img.classList.add('loaded');
+        }
+        // 添加 fetchpriority
+        img.setAttribute('fetchpriority', 'high');
+        // 添加预加载链接
+        addPreloadLink(img.src || img.dataset.src);
+      });
+    });
+  }
+
+  // 添加预加载链接
+  function addPreloadLink(url) {
+    if (!url || document.querySelector(`link[rel="preload"][href="${url}"]`)) return;
+    
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = url;
+    document.head.appendChild(link);
+  }
+
+  // 使用 IntersectionObserver 实现懒加载
+  function initLazyLoad() {
+    // 检查浏览器支持
+    if (!('IntersectionObserver' in window)) {
+      // 降级处理：直接加载所有图片
+      loadAllImages();
+      return;
+    }
+
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          loadImage(img);
+          observer.unobserve(img);
+        }
+      });
+    }, {
+      rootMargin: CONFIG.rootMargin,
+      threshold: 0.01
+    });
+
+    // 观察所有懒加载图片
+    document.querySelectorAll(CONFIG.lazySelector).forEach(img => {
+      imageObserver.observe(img);
+    });
+  }
+
+  // 加载单个图片
+  function loadImage(img) {
+    const src = img.dataset.src;
+    const srcset = img.dataset.srcset;
+    
+    if (!src) return;
+
+    // 创建新图片对象预加载
+    const tempImg = new Image();
+    
+    tempImg.onload = function() {
+      img.src = src;
+      if (srcset) {
+        img.srcset = srcset;
+      }
+      img.classList.add('loaded');
+      img.removeAttribute('data-src');
+      img.removeAttribute('data-srcset');
+    };
+
+    tempImg.onerror = function() {
+      // 加载失败时添加错误样式
+      img.classList.add('load-error');
+      console.warn('Failed to load image:', src);
+    };
+
+    tempImg.src = src;
+  }
+
+  // 降级：加载所有图片
+  function loadAllImages() {
+    document.querySelectorAll(CONFIG.lazySelector).forEach(img => {
+      loadImage(img);
+    });
+  }
+
+  // 延迟加载非关键资源
+  function deferNonCriticalResources() {
+    // 延迟加载非首屏的 CSS
+    const deferredStyles = document.querySelectorAll('link[data-defer="css"]');
+    deferredStyles.forEach(link => {
+      link.rel = 'stylesheet';
+      link.removeAttribute('data-defer');
+    });
+
+    // 延迟执行非关键脚本
+    const deferredScripts = document.querySelectorAll('script[data-defer="js"]');
+    deferredScripts.forEach(script => {
+      const newScript = document.createElement('script');
+      newScript.src = script.src;
+      newScript.async = true;
+      document.body.appendChild(newScript);
+      script.remove();
+    });
+  }
+
+  // 初始化
+  function init() {
+    addStyles();
+    preloadPriorityImages();
+    initLazyLoad();
+    
+    // 页面加载完成后延迟加载非关键资源
+    if (document.readyState === 'complete') {
+      setTimeout(deferNonCriticalResources, 100);
+    } else {
+      window.addEventListener('load', () => {
+        setTimeout(deferNonCriticalResources, 100);
+      });
+    }
+  }
+
+  // DOM 就绪时初始化
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  // 暴露全局 API
+  window.LazyLoad = {
+    refresh: initLazyLoad,
+    loadImage: loadImage,
+    config: CONFIG
+  };
+})();
