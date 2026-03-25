@@ -1,53 +1,43 @@
 /**
  * 页面增强脚本
  * 1. 首页交通网络简化 - 仅保留"查看详细地图"按钮
- * 2. 各区县卡片美化 - 不同颜色+地标背景
+ * 2. 各区县卡片美化 - 地标特色背景图
  * 3. 手机端排版优化 - 各区县简略显示
  */
 (function() {
   'use strict';
   
-  // 区县配置 - 颜色、背景图、描述
+  // 区县配置 - 颜色、背景图
   const DISTRICTS_CONFIG = {
     yuncheng: {
       name: '云城区',
       nameEn: 'Yuncheng',
       color: '#d97706',
-      bgImage: './images/scenic/chanyu-town.jpg',
-      desc: '中国石都核心 · 禅域小镇',
-      descEn: 'Stone Capital · Zen Town'
+      bgImage: './images/scenic/chanyu-town.jpg'
     },
     yunanqu: {
       name: '云安区', 
       nameEn: "Yun'an",
       color: '#8b5cf6',
-      bgImage: './images/culture/stone-mountain.jpg',
-      desc: '中国硫都 · 绿色建材',
-      descEn: 'Sulfur Capital · Green Building'
+      bgImage: './images/culture/stone-mountain.jpg'
     },
     xinxing: {
       name: '新兴县',
       nameEn: 'Xinxing', 
       color: '#10b981',
-      bgImage: './images/scenic/guoen-temple.jpg',
-      desc: '六祖故里 · 禅茶温泉',
-      descEn: 'Huineng Hometown · Zen Tea'
+      bgImage: './images/scenic/guoen-temple.jpg'
     },
     luoding: {
       name: '罗定市',
       nameEn: 'Luoding',
       color: '#06b6d4', 
-      bgImage: './images/scenic/changgangpo.jpg',
-      desc: '历史文化名城 · 长岗坡',
-      descEn: 'Historic City · Aqueduct'
+      bgImage: './images/scenic/changgangpo.jpg'
     },
     yunan: {
       name: '郁南县',
       nameEn: 'Yunan',
       color: '#f43f5e',
-      bgImage: './images/scenic/lanzhai-village.jpg',
-      desc: '无核黄皮之乡 · 南江文化',
-      descEn: 'Wampee Hometown · Nanjiang Culture'
+      bgImage: './images/scenic/lanzhai-village.jpg'
     }
   };
 
@@ -75,9 +65,8 @@
     check();
   }
 
-  // 1. 简化首页交通网络
+  // 1. 简化首页交通网络 - 只保留"查看详细地图"按钮
   function simplifyTransport() {
-    // 查找交通网络区块
     const transportSelectors = [
       '.transport-section',
       '[class*="transport-section"]',
@@ -89,40 +78,43 @@
         const lang = getLang();
         const isZh = lang === 'zh';
         
-        // 保留容器但替换内容为简化版
+        // 只保留按钮，去掉标题和描述
         const wrapper = document.createElement('div');
-        wrapper.className = 'transport-simplified bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-8 text-center my-8';
+        wrapper.className = 'transport-simple';
+        wrapper.style.cssText = 'text-align: center; padding: 24px 0;';
         wrapper.innerHTML = `
-          <h3 class="text-2xl font-bold text-gray-900 mb-3">${isZh ? '交通网络' : 'Transportation'}</h3>
-          <p class="text-gray-600 mb-6 max-w-lg mx-auto">${isZh 
-            ? '南广高铁贯穿全境，1小时直达广州、南宁。多条高速交汇，交通便捷。' 
-            : 'High-speed rail connecting Guangzhou and Nanning in 1 hour. Multiple highways intersect.'}</p>
-          <a href="${isZh ? '/geography' : '/geography'}" 
-             class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg font-medium hover:shadow-lg transition-all"
+          <a href="/geography" 
+             style="
+               display: inline-flex;
+               align-items: center;
+               gap: 8px;
+               padding: 14px 28px;
+               background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+               color: white;
+               text-decoration: none;
+               border-radius: 8px;
+               font-weight: 500;
+               font-size: 15px;
+               transition: all 0.3s ease;
+               box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+             "
+             onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(217, 119, 6, 0.4)'"
+             onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(217, 119, 6, 0.3)'"
              onclick="window.navigateTo && window.navigateTo('/geography');return false;">
             <span>${isZh ? '查看详细地图' : 'View Map Details'}</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;">
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
           </a>
         `;
-        
-        // 添加样式
-        const style = document.createElement('style');
-        style.textContent = `
-          .transport-simplified { transition: transform 0.3s ease; }
-          .transport-simplified:hover { transform: translateY(-2px); }
-        `;
-        document.head.appendChild(style);
         
         section.parentNode.replaceChild(wrapper, section);
       });
     });
   }
 
-  // 2. 美化各区县卡片
+  // 2. 美化各区县卡片 - 使用地标特色背景图
   function beautifyDistricts() {
-    // 查找区县网格
     waitForElement('[class*="grid-cols-"]', (grid) => {
       // 检查是否是区县网格
       const html = grid.innerHTML;
@@ -138,19 +130,17 @@
       let cardsHTML = '';
       Object.entries(DISTRICTS_CONFIG).forEach(([key, district]) => {
         const name = isZh ? district.name : district.nameEn;
-        const desc = isZh ? district.desc : district.descEn;
         
         cardsHTML += `
-          <div class="district-card-enhanced" style="
+          <div class="district-card" style="
             position: relative;
             border-radius: 16px;
             overflow: hidden;
-            min-height: 180px;
+            min-height: 160px;
             cursor: pointer;
-            transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-          " onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.15)'" 
-             onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'">
+          ">
+            <!-- 背景图 -->
             <div style="
               position: absolute;
               inset: 0;
@@ -158,27 +148,31 @@
               background-size: cover;
               background-position: center;
               transition: transform 0.5s ease;
-            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"></div>
+            " class="district-bg"></div>
+            
+            <!-- 渐变遮罩 -->
             <div style="
               position: absolute;
               inset: 0;
-              background: linear-gradient(180deg, ${district.color}40 0%, ${district.color}90 100%);
+              background: linear-gradient(180deg, transparent 0%, ${district.color}dd 100%);
             "></div>
+            
+            <!-- 内容 -->
             <div style="
               position: relative;
               z-index: 1;
-              padding: 20px;
+              padding: 16px;
               height: 100%;
+              min-height: 160px;
               display: flex;
               flex-direction: column;
               justify-content: flex-end;
               color: white;
             ">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-                <span style="width:12px;height:12px;border-radius:50%;background:white;box-shadow:0 2px 4px rgba(0,0,0,0.2);"></span>
-                <h4 style="font-size:18px;font-weight:700;text-shadow:0 2px 4px rgba(0,0,0,0.3);">${name}</h4>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="width:10px;height:10px;border-radius:50%;background:white;box-shadow:0 2px 4px rgba(0,0,0,0.2);"></span>
+                <h4 style="font-size:16px;font-weight:700;text-shadow:0 2px 4px rgba(0,0,0,0.3);margin:0;">${name}</h4>
               </div>
-              <p style="font-size:13px;opacity:0.95;text-shadow:0 1px 2px rgba(0,0,0,0.2);">${desc}</p>
             </div>
           </div>
         `;
@@ -189,73 +183,62 @@
       if (parent && cardsHTML) {
         const wrapper = document.createElement('div');
         wrapper.innerHTML = `
-          <h3 style="text-align:center;font-size:24px;font-weight:700;color:#1a1a1a;margin-bottom:24px;">
+          <h3 style="text-align:center;font-size:22px;font-weight:700;color:#1a1a1a;margin-bottom:20px;">
             ${isZh ? '各区县概况' : 'Districts Overview'}
           </h3>
-          <div class="districts-grid-enhanced" style="
+          <div class="districts-grid" style="
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 16px;
+            gap: 12px;
           ">${cardsHTML}</div>
         `;
         parent.replaceChild(wrapper, grid);
         
-        // 添加移动端响应式样式
+        // 添加悬停效果和响应式样式
         const style = document.createElement('style');
         style.textContent = `
+          .district-card:hover .district-bg { transform: scale(1.08); }
+          .district-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+          .district-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+          
+          /* 平板 */
           @media (max-width: 1024px) {
-            .districts-grid-enhanced { grid-template-columns: repeat(3, 1fr) !important; }
+            .districts-grid { grid-template-columns: repeat(3, 1fr) !important; }
           }
+          /* 手机 */
           @media (max-width: 768px) {
-            .districts-grid-enhanced { grid-template-columns: repeat(2, 1fr) !important; }
-            .district-card-enhanced { min-height: 120px !important; }
-            .district-card-enhanced p { display: none !important; } /* 移动端隐藏描述 */
-          }
-          @media (max-width: 480px) {
-            .districts-grid-enhanced { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
-            .district-card-enhanced { min-height: 100px !important; border-radius: 12px !important; }
-            .district-card-enhanced > div:last-child { padding: 12px !important; }
-            .district-card-enhanced h4 { font-size: 14px !important; }
+            .districts-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+            .district-card { min-height: 100px !important; border-radius: 12px !important; }
+            .district-card > div:last-child { min-height: 100px !important; padding: 12px !important; }
+            .districts-grid h3 { font-size: 18px !important; margin-bottom: 12px !important; }
           }
         `;
         document.head.appendChild(style);
+        
+        // 绑定悬停事件（内联样式无法处理伪类）
+        setTimeout(() => {
+          document.querySelectorAll('.district-card').forEach(card => {
+            const bg = card.querySelector('.district-bg');
+            if (bg) {
+              card.addEventListener('mouseenter', () => bg.style.transform = 'scale(1.08)');
+              card.addEventListener('mouseleave', () => bg.style.transform = 'scale(1)');
+            }
+          });
+        }, 100);
       }
     });
-  }
-
-  // 3. 移动端优化 - 各区县简略显示
-  function mobileOptimize() {
-    const isMobile = window.innerWidth < 768;
-    
-    if (isMobile) {
-      // 为区县卡片添加移动端简略样式
-      document.querySelectorAll('.district-card-enhanced').forEach(card => {
-        const desc = card.querySelector('p');
-        if (desc) {
-          desc.style.display = 'none'; // 隐藏详细描述
-        }
-        card.style.minHeight = '100px';
-      });
-    }
   }
 
   // 初始化
   function init() {
     console.log('[PageEnhance] Initializing...');
     
-    // 延迟执行，等待React渲染
     setTimeout(() => {
       simplifyTransport();
       beautifyDistricts();
-      mobileOptimize();
-    }, 800);
+    }, 600);
     
-    // 监听窗口变化
-    window.addEventListener('resize', () => {
-      mobileOptimize();
-    });
-    
-    // 监听路由变化（简化版）
+    // 监听路由变化
     const originalPushState = history.pushState;
     history.pushState = function() {
       originalPushState.apply(this, arguments);
@@ -272,12 +255,4 @@
   } else {
     init();
   }
-  
-  // 暴露 API
-  window.PageEnhance = {
-    refresh: function() {
-      simplifyTransport();
-      beautifyDistricts();
-    }
-  };
 })();
