@@ -1,54 +1,62 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- 动态设置 base URL -->
     <script>
-      // 动态设置 base URL，兼容 GitHub Pages 和 Vercel
       (function() {
         var path = window.location.pathname;
         var base = document.createElement('base');
-        if (path.indexOf('/visityunfu') === 0) {
-          base.href = '/visityunfu/';
-        } else {
-          base.href = '/';
-        }
+        base.href = path.indexOf('/visityunfu') === 0 ? '/visityunfu/' : '/';
         document.head.appendChild(base);
       })();
     </script>
+    
+    <!-- SPA 路由修复 -->
     <script>
-      // SPA 路由修复：处理从 404 页面重定向回来的情况
       (function() {
-        // 方式 1：从 sessionStorage 获取（GitHub Pages）
         var redirectPath = sessionStorage.getItem('spa_redirect');
         if (redirectPath) {
           sessionStorage.removeItem('spa_redirect');
           history.replaceState(null, null, redirectPath);
           return;
         }
-        
-        // 方式 2：从 URL 参数获取（兼容方案）
         var params = new URLSearchParams(window.location.search);
         var redirect = params.get('redirect');
         if (redirect) {
-          // 移除 redirect 参数，恢复干净 URL
-          var cleanUrl = window.location.pathname + window.location.hash;
-          history.replaceState(null, null, cleanUrl);
-          // 使用 React Router 导航到目标路径
+          history.replaceState(null, null, window.location.pathname + window.location.hash);
           if (window.history && window.history.pushState) {
             history.pushState(null, null, redirect);
           }
         }
       })();
-      
-      // 临时修复：防止 tr 未定义错误
       if (typeof window.tr === 'undefined') {
         window.tr = function(key) { return key; };
       }
     </script>
+    
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Visit Yunfu - 云浮文旅</title>
+    
+    <!-- 预加载 Hero 图片 - 提高首屏加载速度 -->
+    <link rel="preload" href="./images/common/hero-1.jpg" as="image" fetchpriority="high">
+    <link rel="preload" href="./images/common/hero-2.jpg" as="image" fetchpriority="high">
+    
+    <!-- 主资源 -->
     <script type="module" crossorigin src="./assets/index-DRhF-XhE.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-DWFOa5Ul.css">
+    
+    <!-- 性能优化：图片加载优化 -->
+    <style>
+      /* 图片加载占位 */
+      img { max-width: 100%; height: auto; }
+      img[src=""], img:not([src]) { 
+        background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%); 
+        background-size: 200% 100%; 
+      }
+      /* Hero 图片优先显示 */
+      img[fetchpriority="high"] { content-visibility: auto; }
+    </style>
   </head>
   <body>
     <div id="root"></div>
