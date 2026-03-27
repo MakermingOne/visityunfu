@@ -59,23 +59,44 @@
     });
   }
   
-  // 2. 首页显示五个区县卡片
+  // 2. 首页显示五个区县卡片 - 全局标记确保只执行一次
+  let districtsAdded = false;
+  
   function initDistricts() {
-    // 查找概览区域或合适位置
+    // 如果已经添加过，直接返回
+    if (districtsAdded || document.querySelector('.home-districts-grid')) return;
+    
+    // 查找概览区域或合适位置 - 优先查找概览 section
+    let targetSection = null;
     const sections = document.querySelectorAll('section, [class*="overview"], [class*="districts"]');
     
-    sections.forEach(section => {
-      // 如果已经处理过，跳过
-      if (section.querySelector('.home-districts-grid')) return;
-      
-      // 检查是否是区县相关区域
+    // 先尝试找到明确的概览区域
+    for (const section of sections) {
       const text = section.textContent;
-      const isDistrictSection = text.includes('各区县') || text.includes('Districts') || 
-                                text.includes('云城区') || text.includes('yuncheng');
-      
-      if (!isDistrictSection) return;
-      
-      let html = '';
+      const className = section.className || '';
+      // 优先匹配概览/Overview 区域
+      if ((className.toLowerCase().includes('overview') || text.includes('概览')) && 
+          (text.includes('各区县') || text.includes('Districts') || text.includes('云城区'))) {
+        targetSection = section;
+        break;
+      }
+    }
+    
+    // 如果没找到，再找包含区县信息的第一个 section
+    if (!targetSection) {
+      for (const section of sections) {
+        const text = section.textContent;
+        if (text.includes('各区县') || text.includes('Districts') || 
+            text.includes('云城区') || text.includes('yuncheng')) {
+          targetSection = section;
+          break;
+        }
+      }
+    }
+    
+    if (!targetSection) return;
+    
+    let html = '';
       Object.values(DISTRICTS).forEach(d => {
         const name = isZh ? d.name : d.nameEn;
         html += `
@@ -121,7 +142,7 @@
       });
       
       // 创建或更新区县网格
-      const grid = section.querySelector('[class*="grid"]') || section;
+      const grid = targetSection.querySelector('[class*="grid"]') || targetSection;
       if (grid) {
         const wrapper = document.createElement('div');
         wrapper.className = 'home-districts-grid';
@@ -141,16 +162,37 @@
           grid.innerHTML = wrapper.outerHTML;
         }
         
-        // 响应式
+        // 响应式 - 优化卡片比例
         const style = document.createElement('style');
         style.textContent = `
-          @media(max-width: 1024px) { .districts-grid-container { grid-template-columns: repeat(3, 1fr) !important; } }
-          @media(max-width: 768px) { .districts-grid-container { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; } }
-          @media(max-width: 768px) { .district-card { min-height: 100px !important; } }
+          .districts-grid-container { 
+            grid-template-columns: repeat(5, 1fr) !important;
+            gap: 16px !important;
+          }
+          .district-card { 
+            aspect-ratio: 4/3 !important;
+            min-height: auto !important;
+          }
+          @media(max-width: 1200px) { 
+            .districts-grid-container { grid-template-columns: repeat(5, 1fr) !important; gap: 14px !important; } 
+          }
+          @media(max-width: 1024px) { 
+            .districts-grid-container { grid-template-columns: repeat(3, 1fr) !important; gap: 12px !important; } 
+          }
+          @media(max-width: 768px) { 
+            .districts-grid-container { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; } 
+            .district-card { aspect-ratio: 16/9 !important; }
+          }
+          @media(max-width: 480px) { 
+            .districts-grid-container { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; } 
+            .district-card { aspect-ratio: 3/2 !important; }
+          }
         `;
         document.head.appendChild(style);
+        
+        // 标记已添加
+        districtsAdded = true;
       }
-    });
   }
   
   // 执行
