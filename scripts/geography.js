@@ -21,8 +21,26 @@
   };
   
   function addDistrictCards() {
-    const main = document.querySelector('#root');
-    if (!main) return;
+    // 查找是否已有区县section，有则替换，无则创建
+    let existingSection = null;
+    const sections = document.querySelectorAll('section, [class*="districts"], [class*="overview"]');
+    
+    for (const section of sections) {
+      const text = section.textContent;
+      if (text.includes('各区县') || text.includes('Districts') || text.includes('各区县概况')) {
+        existingSection = section;
+        break;
+      }
+    }
+    
+    // 如果找到原有section，清空它并用新内容替换
+    if (existingSection) {
+      existingSection.innerHTML = '';
+      existingSection.style.cssText = 'padding: 40px 20px; max-width: 1200px; margin: 0 auto;';
+    }
+    
+    const container = existingSection || document.querySelector('#root');
+    if (!container) return;
     
     let html = '';
     Object.values(DISTRICTS).forEach(d => {
@@ -83,7 +101,12 @@
       </div>
     `;
     
-    main.appendChild(section);
+    // 如果是替换原有section，直接append到container；否则append到#root
+    if (existingSection) {
+      container.appendChild(section);
+    } else {
+      container.appendChild(section);
+    }
     
     // 响应式
     const style = document.createElement('style');

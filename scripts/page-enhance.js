@@ -96,6 +96,12 @@
     
     if (!targetSection) return;
     
+    // 隐藏原有的"各区县概况"内容（如果有）
+    const existingGrid = targetSection.querySelector('[class*="grid"]');
+    if (existingGrid) {
+      existingGrid.style.display = 'none';
+    }
+    
     let html = '';
       Object.values(DISTRICTS).forEach(d => {
         const name = isZh ? d.name : d.nameEn;
