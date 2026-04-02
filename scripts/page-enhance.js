@@ -15,11 +15,11 @@
   const isZh = lang === 'zh';
   
   const DISTRICTS = {
-    yuncheng: { name: '云城区', nameEn: 'Yuncheng', color: '#d97706', bg: './images/scenic/chanyu-town.jpg' },
+    yuncheng: { name: '云城区', nameEn: 'Yuncheng', color: '#d97706', bg: './images/scenic/chanyu-town-new.jpg' },
     yunanqu: { name: '云安区', nameEn: "Yun'an", color: '#8b5cf6', bg: './images/culture/stone-mountain.jpg' },
-    xinxing: { name: '新兴县', nameEn: 'Xinxing', color: '#10b981', bg: './images/scenic/guoen-temple.jpg' },
-    luoding: { name: '罗定市', nameEn: 'Luoding', color: '#06b6d4', bg: './images/scenic/changgangpo.jpg' },
-    yunan: { name: '郁南县', nameEn: 'Yunan', color: '#f43f5e', bg: './images/scenic/lanzhai-village.jpg' }
+    xinxing: { name: '新兴县', nameEn: 'Xinxing', color: '#10b981', bg: './images/scenic/guoen-temple2.jpg' },
+    luoding: { name: '罗定市', nameEn: 'Luoding', color: '#06b6d4', bg: './images/scenic/changgangpo-new.jpg' },
+    yunan: { name: '郁南县', nameEn: 'Yunan', color: '#f43f5e', bg: './images/scenic/lanzhai2.jpg' }
   };
   
   // 统一的按钮样式
@@ -106,7 +106,7 @@
       Object.values(DISTRICTS).forEach(d => {
         const name = isZh ? d.name : d.nameEn;
         html += `
-          <div class="district-card" style="
+          <div class="district-card" data-bg="${d.bg}" style="
             position: relative;
             border-radius: 12px;
             overflow: hidden;
@@ -119,7 +119,7 @@
             <div class="district-bg" style="
               position: absolute;
               inset: 0;
-              background: url('${d.bg}') center/cover;
+              background: linear-gradient(135deg, rgba(217,119,6,0.16), rgba(17,24,39,0.22));
               transition: transform 0.5s ease;
             "></div>
             <div style="
@@ -202,8 +202,42 @@
   }
   
   // 执行
+  function hydrateDistrictBackgrounds() {
+    const applyBackground = (card) => {
+      if (!card || card.dataset.bgLoaded === 'true') return;
+      const bg = card.querySelector('.district-bg');
+      const url = card.dataset.bg;
+      if (!bg || !url) return;
+      bg.style.background = `url('${url}') center/cover`;
+      card.dataset.bgLoaded = 'true';
+    };
+
+    const cards = document.querySelectorAll('.district-card[data-bg]');
+    if (!cards.length) return;
+
+    const schedule = window.requestIdleCallback || function(cb) {
+      return setTimeout(cb, 120);
+    };
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          applyBackground(entry.target);
+          observer.unobserve(entry.target);
+        });
+      }, { rootMargin: '200px 0px' });
+
+      cards.forEach((card) => observer.observe(card));
+      return;
+    }
+
+    schedule(() => cards.forEach(applyBackground));
+  }
+
   setTimeout(() => {
     initTransport();
     initDistricts();
+    hydrateDistrictBackgrounds();
   }, 600);
 })();

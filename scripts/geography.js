@@ -13,11 +13,11 @@
   const isZh = lang === 'zh';
   
   const DISTRICTS = {
-    yuncheng: { name: '云城区', nameEn: 'Yuncheng', color: '#d97706', bg: './images/scenic/chanyu-town.jpg', desc: '中国石都核心', descEn: 'Stone Capital' },
+    yuncheng: { name: '云城区', nameEn: 'Yuncheng', color: '#d97706', bg: './images/scenic/chanyu-town-new.jpg', desc: '中国石都核心', descEn: 'Stone Capital' },
     yunanqu: { name: '云安区', nameEn: "Yun'an", color: '#8b5cf6', bg: './images/culture/stone-mountain.jpg', desc: '中国硫都', descEn: 'Sulfur Capital' },
-    xinxing: { name: '新兴县', nameEn: 'Xinxing', color: '#10b981', bg: './images/scenic/guoen-temple.jpg', desc: '六祖故里', descEn: 'Huineng Hometown' },
-    luoding: { name: '罗定市', nameEn: 'Luoding', color: '#06b6d4', bg: './images/scenic/changgangpo.jpg', desc: '历史文化名城', descEn: 'Historic City' },
-    yunan: { name: '郁南县', nameEn: 'Yunan', color: '#f43f5e', bg: './images/scenic/lanzhai-village.jpg', desc: '无核黄皮之乡', descEn: 'Wampee Hometown' }
+    xinxing: { name: '新兴县', nameEn: 'Xinxing', color: '#10b981', bg: './images/scenic/guoen-temple2.jpg', desc: '六祖故里', descEn: 'Huineng Hometown' },
+    luoding: { name: '罗定市', nameEn: 'Luoding', color: '#06b6d4', bg: './images/scenic/changgangpo-new.jpg', desc: '历史文化名城', descEn: 'Historic City' },
+    yunan: { name: '郁南县', nameEn: 'Yunan', color: '#f43f5e', bg: './images/scenic/lanzhai2.jpg', desc: '无核黄皮之乡', descEn: 'Wampee Hometown' }
   };
   
   function addDistrictCards() {
